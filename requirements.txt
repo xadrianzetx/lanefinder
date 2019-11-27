@@ -1,3 +1,4 @@
-kivy
+pyyaml
+edgetpu
 numpy
 opencv-python==3.4.0.12
