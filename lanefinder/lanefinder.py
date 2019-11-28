@@ -7,7 +7,7 @@ class Lanefinder:
 
     def __init__(self, model, input_shape, quant, dequant):
         self._window = None
-        self._engine = BasicEngine(model)
+        self._engine = self._get_tpu_engine(model)
         self._cap = cv2.VideoCapture(0)
         self._size = input_shape
         self._quant = quant
@@ -20,6 +20,18 @@ class Lanefinder:
     @window.setter
     def window(self, name):
         self._window = name
+
+    @staticmethod
+    def _get_tpu_engine(model):
+        try:
+            # get runtime for TPU
+            model = BasicEngine(model)
+
+        except RuntimeError:
+            # TPU has not been detected
+            model = None
+
+        return model
 
     def _preprocess(self, frame):
         frame *= (1 / 255)
@@ -54,9 +66,23 @@ class Lanefinder:
 
             frame = cv2.resize(frame, tuple(self._size))
             frame = frame.astype(np.float32)
-            frame = self._preprocess(frame)
-            pred_obj = self._engine.RunInference(frame.flatten())
-            pred = self._postprocess(pred_obj, frmcpy)
+
+            if self._engine is not None:
+                frame = self._preprocess(frame)
+                pred_obj = self._engine.RunInference(frame.flatten())
+                pred = self._postprocess(pred_obj, frmcpy)
+
+            else:
+                height, width, _ = frmcpy.shape
+                pred = cv2.putText(
+                    frmcpy,
+                    'TPU has not been detected!', 
+                    org=(height // 2, width // 2),
+                    fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                    fontScale=2,
+                    color=(0, 0, 255),
+                    thickness=cv2.LINE_AA
+                )
 
             if self._window is not None:
                 # show in window with fullscreen setup
