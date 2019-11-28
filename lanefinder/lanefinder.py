@@ -28,8 +28,14 @@ class Lanefinder:
 
         return quantized.astype(np.uint8)
 
-    def _postprocess(self, frame):
-        pass
+    def _postprocess(self, pred_obj, frame):
+        pred = pred_obj[1].reshape(self._size)
+        dequantized = (self._dequant['std'] * (pred - self._dequant['mean']))
+        dequantized = dequantized.astype(np.float32)
+        mask = cv2.resize(dequantized, (frame.shape[1], frame.shape[0]))
+        frame[mask != 0] = (255, 0, 255)
+
+        return frame
 
     def stream(self):
         """
@@ -49,16 +55,18 @@ class Lanefinder:
             frame = cv2.resize(frame, tuple(self._size))
             frame = frame.astype(np.float32)
             frame = self._preprocess(frame)
-            pred = self._engine.RunInference(frame.flatten())
+            pred_obj = self._engine.RunInference(frame.flatten())
+            pred = self._postprocess(pred_obj, frmcpy)
 
             if self._window is not None:
                 # show in window with fullscreen setup
-                cv2.imshow(self._window, frmcpy)
+                cv2.imshow(self._window, pred)
+                # print(pred[1].reshape(192, 192).shape)
 
             else:
                 # user did not specify window name
                 # for fullscreen use
-                cv2.imshow('default', frmcpy)
+                cv2.imshow('default', pred)
 
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 # exit on key press
@@ -69,3 +77,10 @@ class Lanefinder:
         """
         cv2.destroyAllWindows()
         self._cap.release()
+
+
+class LanefinderFromVideo(Lanefinder):
+
+    def __init__(self, src, model, input_shape, quant, dequant):
+        Lanefinder.__init__(self, model, input_shape, quant, dequant)
+        self._cap = cv2.VideoCapture(src)
