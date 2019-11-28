@@ -34,6 +34,9 @@ class Lanefinder:
         return model
 
     def _preprocess(self, frame):
+        # normalize and quantize input
+        # with paramaeters obtained during
+        # model calibration
         frame *= (1 / 255)
         expd = np.expand_dims(frame, axis=0)
         quantized = (expd / self._quant['std'] + self._quant['mean'])
@@ -41,9 +44,15 @@ class Lanefinder:
         return quantized.astype(np.uint8)
 
     def _postprocess(self, pred_obj, frame):
+        # get predicted mask in shape (n_rows*n_cols, )
+        # and reshape back to (n_rows, n_cols)
         pred = pred_obj[1].reshape(self._size)
+
+        # dequantize and cast back to float
         dequantized = (self._dequant['std'] * (pred - self._dequant['mean']))
         dequantized = dequantized.astype(np.float32)
+
+        # resize mask to original frame shape and overlay
         mask = cv2.resize(dequantized, (frame.shape[1], frame.shape[0]))
         frame[mask != 0] = (255, 0, 255)
 
@@ -51,6 +60,10 @@ class Lanefinder:
 
     def stream(self):
         """
+        Starts real time video stream with
+        coral edgetpu supported traffic lane segmentation
+
+        :return:    void
         """
         while True:
             # get next video frame
@@ -68,15 +81,19 @@ class Lanefinder:
             frame = frame.astype(np.float32)
 
             if self._engine is not None:
+                # TPU engine has been initiated
+                # so run inference steps
                 frame = self._preprocess(frame)
                 pred_obj = self._engine.RunInference(frame.flatten())
                 pred = self._postprocess(pred_obj, frmcpy)
 
             else:
+                # no TPU detected so output recorded
+                # frame with warning sign on it
                 height, width, _ = frmcpy.shape
                 pred = cv2.putText(
                     frmcpy,
-                    'TPU has not been detected!', 
+                    'TPU has not been detected!',
                     org=(height // 2, width // 2),
                     fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                     fontScale=2,
@@ -87,11 +104,10 @@ class Lanefinder:
             if self._window is not None:
                 # show in window with fullscreen setup
                 cv2.imshow(self._window, pred)
-                # print(pred[1].reshape(192, 192).shape)
 
             else:
                 # user did not specify window name
-                # for fullscreen use
+                # for fullscreen use so use default opencv size
                 cv2.imshow('default', pred)
 
             if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -100,6 +116,9 @@ class Lanefinder:
 
     def destroy(self):
         """
+        Runs cleanup after main loop exit
+
+        :return:    void
         """
         cv2.destroyAllWindows()
         self._cap.release()
