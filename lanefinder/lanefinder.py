@@ -5,11 +5,12 @@ from edgetpu.basic.basic_engine import BasicEngine
 
 class Lanefinder:
 
-    def __init__(self, model, input_shape, quant, dequant):
+    def __init__(self, model, input_shape, output_shape, quant, dequant):
         self._window = None
         self._engine = self._get_tpu_engine(model)
         self._cap = cv2.VideoCapture(0)
         self._size = input_shape
+        self._output_shape = output_shape
         self._quant = quant
         self._dequant = dequant
 
@@ -52,8 +53,17 @@ class Lanefinder:
         dequantized = (self._dequant['std'] * (pred - self._dequant['mean']))
         dequantized = dequantized.astype(np.float32)
 
-        # resize mask to original frame shape and overlay
+        # resize frame and mask to output shape
+        frame = cv2.resize(frame, self._output_shape)
         mask = cv2.resize(dequantized, (frame.shape[1], frame.shape[0]))
+        
+        # perform closing operation on mask to smooth out lane edges
+        kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
+        mask = cv2.morphologyEx(mask, cv2.MORPH_DILATE, kernel, iterations=1)
+        mask = cv2.morphologyEx(mask, cv2.MORPH_ERODE, kernel, iterations=4)
+        mask = cv2.GaussianBlur(mask, (5, 5), 0)
+
+        # overlay frame and segmentation mask
         frame[mask != 0] = (255, 0, 255)
 
         return frame
