@@ -8,3 +8,6 @@ dequantization:
 input_shape:
   - 192
   - 192
+output_shape:
+  - 480
+  - 320

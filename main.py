@@ -24,6 +24,7 @@ def main():
     lanefinder = Lanefinder(
         model=config['model'],
         input_shape=config['input_shape'],
+        output_shape=tuple(config['output_shape']),
         quant=config['quantization'],
         dequant=config['dequantization']
     )
