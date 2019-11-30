@@ -136,6 +136,6 @@ class Lanefinder:
 
 class LanefinderFromVideo(Lanefinder):
 
-    def __init__(self, src, model, input_shape, quant, dequant):
-        Lanefinder.__init__(self, model, input_shape, quant, dequant)
+    def __init__(self, src, model, input_shape, output_shape, quant, dequant):
+        Lanefinder.__init__(self, model, input_shape, output_shape, quant, dequant)
         self._cap = cv2.VideoCapture(src)
