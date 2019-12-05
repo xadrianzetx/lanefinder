@@ -100,15 +100,15 @@ class Lanefinder:
             else:
                 # no TPU detected so output recorded
                 # frame with warning sign on it
-                height, width, _ = frmcpy.shape
+                frmcpy = cv2.resize(frmcpy, self._output_shape)
                 pred = cv2.putText(
                     frmcpy,
                     'TPU has not been detected!',
-                    org=(height // 2, width // 2),
+                    org=(self._output_shape[0] // 16, self._output_shape[1] // 2),
                     fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-                    fontScale=2,
+                    fontScale=1,
                     color=(0, 0, 255),
-                    thickness=cv2.LINE_AA
+                    thickness=1
                 )
 
             if self._window is not None:
