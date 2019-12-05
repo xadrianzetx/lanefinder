@@ -13,6 +13,9 @@ libjasper-dev  libqtgui4  libqt4-test
 wget https://dl.google.com/coral/python/tflite_runtime-1.14.0-cp35-cp35m-linux_armv7l.whl
 pip3 install -r requirements.txt
 
+# fix numpy installation
+pip3 uninstall numpy
+
 # enable picamera drivers and reboot
 echo "sudo modprobe bcm2835-v4l2" >> ~/.profile
 sudo reboot
