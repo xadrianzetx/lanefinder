@@ -2,7 +2,7 @@ import os
 import yaml
 import unittest
 import numpy as np
-from lanefinder import Lanefinder
+from image.processing import preprocessing, postprocessing
 
 
 class TestLanefinder(unittest.TestCase):
@@ -22,16 +22,10 @@ class TestLanefinder(unittest.TestCase):
         Test data type after preprocessing step
         """
         config = self.read_config()
-        lanefinder = Lanefinder(
-            model=config['model'],
-            input_shape=config['input_shape'],
-            output_shape=tuple(config['output_shape']),
-            quant=config['quantization'],
-            dequant=config['dequantization']
-        )
-
+        mean = config['quantization']['mean']
+        std = config['quantization']['std']
         frame = np.zeros(shape=(config['input_shape'] + [3]), dtype=np.float32)
-        out = lanefinder._preprocess(frame)
+        out = preprocessing(frame, mean, std)
         self.assertTrue(out.dtype.name, 'uint8')
 
     def test_preprocess_out_shape(self):
@@ -39,16 +33,10 @@ class TestLanefinder(unittest.TestCase):
         Test data shape after postprocessing step
         """
         config = self.read_config()
-        lanefinder = Lanefinder(
-            model=config['model'],
-            input_shape=config['input_shape'],
-            output_shape=tuple(config['output_shape']),
-            quant=config['quantization'],
-            dequant=config['dequantization']
-        )
-
+        mean = config['quantization']['mean']
+        std = config['quantization']['std']
         frame = np.zeros(shape=(config['input_shape'] + [3]), dtype=np.float32)
-        out = lanefinder._preprocess(frame)
+        out = preprocessing(frame, mean, std)
         fshape = [1] + config['input_shape'] + [3]
         self.assertEquals(list(out.shape), fshape)
 
@@ -57,16 +45,10 @@ class TestLanefinder(unittest.TestCase):
         Test if frame size has desired dimensions after preprocessing
         """
         config = self.read_config()
-        lanefinder = Lanefinder(
-            model=config['model'],
-            input_shape=config['input_shape'],
-            output_shape=tuple(config['output_shape']),
-            quant=config['quantization'],
-            dequant=config['dequantization']
-        )
-
+        mean = config['quantization']['mean']
+        std = config['quantization']['std']
         frame = np.zeros(shape=(config['input_shape'] + [3]), dtype=np.float32)
-        out = lanefinder._preprocess(frame)
+        out = preprocessing(frame, mean, std)
         self.assertEquals(list(out[0, :, :, 0].shape), config['input_shape'])
 
     def test_postprocess_out_dtype(self):
@@ -74,18 +56,21 @@ class TestLanefinder(unittest.TestCase):
         Test frame dtype after postprocessing
         """
         config = self.read_config()
-        lanefinder = Lanefinder(
-            model=config['model'],
-            input_shape=config['input_shape'],
-            output_shape=tuple(config['output_shape']),
-            quant=config['quantization'],
-            dequant=config['dequantization']
-        )
-
+        mean = config['quantization']['mean']
+        std = config['quantization']['std']
         frame = np.zeros(shape=(config['input_shape'] + [3]), dtype=np.float32)
         mask = np.zeros(shape=(192 * 192,), dtype=np.uint8)
-        predobj = [0, mask]
-        out = lanefinder._postprocess(predobj, frame)
+        pred_obj = [0, mask]
+
+        out = postprocessing(
+            pred_obj=pred_obj,
+            frame=frame,
+            mean=mean,
+            std=std,
+            in_shape=tuple(config['input_shape']),
+            out_shape=tuple(config['output_shape'])
+        )
+
         self.assertTrue(out.dtype.name, 'float32')
 
     def test_postprocess_out_framesize(self):
@@ -93,18 +78,21 @@ class TestLanefinder(unittest.TestCase):
         Test frame shape after postprocessing
         """
         config = self.read_config()
-        lanefinder = Lanefinder(
-            model=config['model'],
-            input_shape=config['input_shape'],
-            output_shape=tuple(config['output_shape']),
-            quant=config['quantization'],
-            dequant=config['dequantization']
-        )
-
+        mean = config['quantization']['mean']
+        std = config['quantization']['std']
         frame = np.zeros(shape=(config['input_shape'] + [3]), dtype=np.float32)
         mask = np.zeros(shape=(192 * 192,), dtype=np.uint8)
-        predobj = [0, mask]
-        out = lanefinder._postprocess(predobj, frame)
+        pred_obj = [0, mask]
+
+        out = postprocessing(
+            pred_obj=pred_obj,
+            frame=frame,
+            mean=mean,
+            std=std,
+            in_shape=tuple(config['input_shape']),
+            out_shape=tuple(config['output_shape'])
+        )
+
         fshape = (config['output_shape'][1], config['output_shape'][0], 3)
         self.assertEquals(out.shape, fshape)
 
