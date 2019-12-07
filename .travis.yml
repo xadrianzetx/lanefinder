@@ -19,6 +19,7 @@ deploy:
   api_key:
     secure: Ugck+Fkrlv8UcCyVWAB9wZSiUstHNgFcNHzcnLHy9Tg19AcJ3iCxMuyrzwRGKTYHsHCGaRC5PyT6ofl4XVdabmUh+29JHimhMEdyP+zkTv8DDN2wakRuhEZjz0DL9h1Z4DrL3LN4GRXO546Xyg1gar5foNlcfnvGC/xBM+KWpnvC9nCr7s4QjwGHM/tDMUdPtkOMlfmgxH3ehj84vG+QtH8HYj5ONqG2/wqsTOsOQAXbPlK6P6zJ6tuN1I3kWIdNLcOjKKXRI8B++ItEn3DqQ8h3znyKvIDMKnRtsggWN79Yro4e5/ze1xLZm+YloBDbhX2Ejt/hY/jQB8wGw+5gCUOzXN7zmmKpCTRWht+DXyBX5pNgJg0bkd5pFqV2AFYVNByRcc3meX6O/zZYvW9c1sBEy24LWTpCKHYxHfZeOrpytvs0uMwDz38h87NKgPW29VanPBOg2pD0FmVpC3TRI6ko1mIBjE8JjGfqU3VgoaGVI05yRVGSyzs1kx4V7IOd96I/se/MZzajavoZosengIhj79j+O4T1JsmQ2ATQajhCmzW+T7Kx74Nx0V8iDY+pnA+w8HXwwKUH7fUbdphI+HN8h4TeYLEvp9HitJtEIZvvKOpDlQKCj9I2gAs66JyFeRsUaZMWZSTbHglBt4tyNqybpH02nYykyW+EIZdWm5M=
   skip_cleanup: true
+  draft: true
   on:
     repo: xadrianzetx/lanefinder
     tags: true
