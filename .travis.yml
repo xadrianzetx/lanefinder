@@ -1,0 +1,29 @@
+language: python
+python:
+- '3.5'
+before_install:
+- echo "deb https://packages.cloud.google.com/apt coral-edgetpu-stable main" | sudo
+  tee /etc/apt/sources.list.d/coral-edgetpu.list
+- curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+- sudo apt-get update
+- sudo apt-get -y install libglib2.0-0 libsm6 libxext6 libxrender-dev
+- sudo apt-get -y install python3-edgetpu libedgetpu1-std libcblas-dev
+- sudo apt-get -y install libhdf5-dev libhdf5-serial-dev libatlas-base-dev
+- sudo apt-get -y install libjasper-dev  libqtgui4  libqt4-test
+- wget tflite_runtime-1.14.0-cp35-cp35m-linux_x86_64.whl
+- pip install tflite_runtime-1.14.0-cp35-cp35m-linux_x86_64.whl
+install:
+- pip install -r requirements.txt
+script: python -m unittest
+branches:
+  only:
+  - master
+deploy:
+  provider: releases
+  api_key:
+    secure: Ugck+Fkrlv8UcCyVWAB9wZSiUstHNgFcNHzcnLHy9Tg19AcJ3iCxMuyrzwRGKTYHsHCGaRC5PyT6ofl4XVdabmUh+29JHimhMEdyP+zkTv8DDN2wakRuhEZjz0DL9h1Z4DrL3LN4GRXO546Xyg1gar5foNlcfnvGC/xBM+KWpnvC9nCr7s4QjwGHM/tDMUdPtkOMlfmgxH3ehj84vG+QtH8HYj5ONqG2/wqsTOsOQAXbPlK6P6zJ6tuN1I3kWIdNLcOjKKXRI8B++ItEn3DqQ8h3znyKvIDMKnRtsggWN79Yro4e5/ze1xLZm+YloBDbhX2Ejt/hY/jQB8wGw+5gCUOzXN7zmmKpCTRWht+DXyBX5pNgJg0bkd5pFqV2AFYVNByRcc3meX6O/zZYvW9c1sBEy24LWTpCKHYxHfZeOrpytvs0uMwDz38h87NKgPW29VanPBOg2pD0FmVpC3TRI6ko1mIBjE8JjGfqU3VgoaGVI05yRVGSyzs1kx4V7IOd96I/se/MZzajavoZosengIhj79j+O4T1JsmQ2ATQajhCmzW+T7Kx74Nx0V8iDY+pnA+w8HXwwKUH7fUbdphI+HN8h4TeYLEvp9HitJtEIZvvKOpDlQKCj9I2gAs66JyFeRsUaZMWZSTbHglBt4tyNqybpH02nYykyW+EIZdWm5M=
+  file: ''
+  skip_cleanup: true
+  on:
+    repo: xadrianzetx/lanefinder
+    tags: true
