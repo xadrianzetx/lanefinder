@@ -11,9 +11,6 @@ before_install:
 install:
 - pip3 install -r requirements.txt
 script: python3 -m unittest tests.test_lanefinder
-branches:
-  only:
-  - master
 deploy:
   provider: releases
   api_key:
