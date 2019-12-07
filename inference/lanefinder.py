@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 from edgetpu.basic.basic_engine import BasicEngine
+from image.processing import preprocessing, postprocessing
 
 
 class Lanefinder:
@@ -38,35 +39,21 @@ class Lanefinder:
         # normalize and quantize input
         # with paramaeters obtained during
         # model calibration
-        frame *= (1 / 255)
-        expd = np.expand_dims(frame, axis=0)
-        quantized = (expd / self._quant['std'] + self._quant['mean'])
-
-        return quantized.astype(np.uint8)
+        return preprocessing(frame, self._quant['mean'], self._quant['std'])
 
     def _postprocess(self, pred_obj, frame):
-        # get predicted mask in shape (n_rows*n_cols, )
-        # and reshape back to (n_rows, n_cols)
-        pred = pred_obj[1].reshape(self._size)
-
-        # dequantize and cast back to float
-        dequantized = (self._dequant['std'] * (pred - self._dequant['mean']))
-        dequantized = dequantized.astype(np.float32)
-
-        # resize frame and mask to output shape
-        frame = cv2.resize(frame, self._output_shape)
-        mask = cv2.resize(dequantized, (frame.shape[1], frame.shape[0]))
-        
-        # perform closing operation on mask to smooth out lane edges
-        kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
-        mask = cv2.morphologyEx(mask, cv2.MORPH_DILATE, kernel, iterations=1)
-        mask = cv2.morphologyEx(mask, cv2.MORPH_ERODE, kernel, iterations=4)
-        mask = cv2.GaussianBlur(mask, (5, 5), 0)
-
-        # overlay frame and segmentation mask
-        frame[mask != 0] = (255, 0, 255)
-
-        return frame
+        # get predicted mask from pred object
+        # reshape to output size
+        # perform closing operation to smooth out lane edges
+        # and overlay with original frame
+        return postprocessing(
+            pred_obj=pred_obj,
+            frame=frame,
+            mean=self._quant['mean'],
+            std=self._quant['std'],
+            in_shape=self._size,
+            out_shape=self._output_shape
+        )
 
     def stream(self):
         """
@@ -94,7 +81,7 @@ class Lanefinder:
                 # TPU engine has been initiated
                 # so run inference steps
                 frame = self._preprocess(frame)
-                pred_obj = self._engine.RunInference(frame.flatten())
+                pred_obj = self._engine.run_inference(frame.flatten())
                 pred = self._postprocess(pred_obj, frmcpy)
 
             else:

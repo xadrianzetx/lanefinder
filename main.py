@@ -1,7 +1,7 @@
 import os
 import cv2
 import yaml
-from lanefinder import Lanefinder
+from inference import Lanefinder
 
 
 def read_config():
