@@ -1,4 +1,4 @@
-model: lanefinder/assets/models/nightlane_rev2_edgetpu.tflite
+model: assets/models/nightlane_rev2_edgetpu.tflite
 quantization:
   std: 0.003921568859368563
   mean: 0
