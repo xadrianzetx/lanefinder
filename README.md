@@ -5,7 +5,7 @@
 TPU accelerated traffic lane segmentation engine for your Raspberry Pi!
 
 <p align="center">
-  <img src="https://i.imgur.com/J9y9tjR.gif">
+  <img src="https://github.com/xadrianzetx/lanefinder/blob/master/assets/gifs/videofeed.gif?raw=true">
 </p>
 
 Thanks to combined power of Raspberry Pi and Edge TPU, this lane segmentation engine is small enough to actually fit in car as regular dashcam, efficient enough to run from powerbank and fast enough to provide real-time traffic lane detection support in low visibility conditions.
@@ -21,7 +21,7 @@ At the moment lanefinder supports two modes - camera feed and video playback. Fo
 ## Prototype
 
 <p align="center">
-  <img src="https://i.imgur.com/jq4uacw.gif">
+  <img src="https://github.com/xadrianzetx/lanefinder/blob/master/assets/gifs/prototype.gif?raw=true">
 </p>
 
 ## Hardware requirements
