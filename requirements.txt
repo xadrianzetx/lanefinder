@@ -1,2 +1,2 @@
 pyyaml
-opencv-python==3.4.0.12
+opencv-python==4.2.0.32
